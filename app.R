@@ -2,13 +2,14 @@
 library(shiny)
 library(glue)
 library(bslib)
+library(shinyWidgets)
 
 # Set theme
 theme <- bs_theme(version = 5)
 theme <- bs_theme_update(theme = theme, primary = "#B77729")
 
 # Declare utility functions
-fmt_numb_steps <- function(steps){
+fmt_numb_steps <- function(steps) {
   sprintf("%d. %s.", 1:length(steps), steps)
 }
 
@@ -16,10 +17,23 @@ fmt_numb_steps <- function(steps){
 ui <- page_fluid(
   theme = theme,
   titlePanel("Sam's Chai (Indian tea) recipe calculator"),
-  verbatimTextOutput("message", ),
+  verbatimTextOutput("message",),
   sidebarLayout(
     sidebarPanel(
-      sliderInput("cups", "Number of Cups", 2, min = 2, max = 8, step = 2),
+      sliderInput(
+        "cups",
+        "Number of Cups",
+        2,
+        min = 2,
+        max = 8,
+        step = 2
+      ),
+      formatNumericInput(
+        "perc",
+        "Milk to Water Ratio",
+        value = 0.5,
+        format = "percentageUS2dec"
+      )
     ),
     mainPanel(
       card(
@@ -40,22 +54,24 @@ ui <- page_fluid(
 server <- function(input, output) {
   # Message output
   output$message <- renderPrint({
-    glue(
-      "Welcome to my Chai recipe calculator!",
-      "Two people usually drink a cup each.",
-      .sep = "\n"
-    )
+    glue("Welcome to my Chai recipe calculator!",
+         "Two people usually drink a cup each.",
+         .sep = "\n")
   })
   # Ingredients output
   output$ingredients <- renderPrint({
     cups <- input$cups
-    water <- 1/2 * cups # 0.5 cups of water per cup of tea
-    milk <- 1/2 * cups # 0.5 cups of milk per cup of tea
-    tea_leaves <- 2/2 * cups # 1 teaspoons of tea leaves per cup of tea
-    sugar <- 1/2 * cups # 0.5 tablespoons of sugar per cup of tea
-    ginger <- 1/2 * cups # 0.5 teaspoons of ginger per cup of tea
+    mw_ratio <- input$perc
+    milk <-  mw_ratio * cups # 0.5 cups of milk per cup of tea
+    water <-
+      (1 - mw_ratio) * cups # 0.5 cups of water per cup of tea
+    tea_leaves <-
+      2 / 2 * cups # 1 teaspoons of tea leaves per cup of tea
+    sugar <- 1 / 2 * cups # 0.5 tablespoons of sugar per cup of tea
+    ginger <- 1 / 2 * cups # 0.5 teaspoons of ginger per cup of tea
     cardamom <- 1 * cups # 1 cardamom per cup of tea
-    cinnamon <- 1/2 * cups # 0.5 teaspoons of cinnamon per cup of tea
+    cinnamon <-
+      1 / 2 * cups # 0.5 teaspoons of cinnamon per cup of tea
 
     ingredients <- glue(
       "{water} cup of water",
@@ -79,10 +95,8 @@ server <- function(input, output) {
       "Boil for about 5-7 minutes",
       "Strain the tea into cups and enjoy"
     )
-    directions <- paste0(
-      fmt_numb_steps(steps),
-      collapse = "\n"
-    )
+    directions <- paste0(fmt_numb_steps(steps),
+                         collapse = "\n")
     return(directions)
   })
 
