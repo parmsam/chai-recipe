@@ -29,8 +29,8 @@ ui <- page_fluid(
         step = 2
       ),
       formatNumericInput(
-        "perc",
-        "Milk to Water Ratio",
+        "ratio",
+        "Milk to Water percent",
         value = 0.5,
         format = "percentageUS2dec"
       )
@@ -61,7 +61,7 @@ server <- function(input, output) {
   # Ingredients output
   output$ingredients <- renderPrint({
     cups <- input$cups
-    mw_ratio <- input$perc
+    mw_ratio <- input$ratio
     milk <-  mw_ratio * cups # 0.5 cups of milk per cup of tea
     water <-
       (1 - mw_ratio) * cups # 0.5 cups of water per cup of tea
